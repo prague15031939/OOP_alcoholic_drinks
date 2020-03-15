@@ -1,0 +1,20 @@
+D:\Works C#\лаба 1\lab1\bin\Debug\lab1.exe.config
+D:\Works C#\лаба 1\lab1\bin\Debug\lab1.exe
+D:\Works C#\лаба 1\lab1\bin\Debug\lab1.pdb
+D:\Works C#\лаба 1\lab1\obj\Debug\lab1.csprojAssemblyReference.cache
+D:\Works C#\лаба 1\lab1\obj\Debug\lab1.frmMain.resources
+D:\Works C#\лаба 1\lab1\obj\Debug\lab1.Properties.Resources.resources
+D:\Works C#\лаба 1\lab1\obj\Debug\lab1.csproj.GenerateResource.cache
+D:\Works C#\лаба 1\lab1\obj\Debug\lab1.exe
+D:\Works C#\лаба 1\lab1\obj\Debug\lab1.pdb
+D:\Works C#\лаба 1\lab1\obj\Debug\lab1.frmCreateObject.resources
+D:\Works C#\oop alcoholic drinks\lab1\bin\Debug\lab1.exe.config
+D:\Works C#\oop alcoholic drinks\lab1\bin\Debug\lab1.exe
+D:\Works C#\oop alcoholic drinks\lab1\bin\Debug\lab1.pdb
+D:\Works C#\oop alcoholic drinks\lab1\obj\Debug\lab1.csprojAssemblyReference.cache
+D:\Works C#\oop alcoholic drinks\lab1\obj\Debug\lab1.frmCreateObject.resources
+D:\Works C#\oop alcoholic drinks\lab1\obj\Debug\lab1.frmMain.resources
+D:\Works C#\oop alcoholic drinks\lab1\obj\Debug\lab1.Properties.Resources.resources
+D:\Works C#\oop alcoholic drinks\lab1\obj\Debug\lab1.csproj.GenerateResource.cache
+D:\Works C#\oop alcoholic drinks\lab1\obj\Debug\lab1.exe
+D:\Works C#\oop alcoholic drinks\lab1\obj\Debug\lab1.pdb
