@@ -4,6 +4,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using System.Reflection;
 
+using Alcohol;
+
 namespace lab1
 { 
     public partial class frmCreateObject : Form
@@ -11,32 +13,57 @@ namespace lab1
         private List<Control> control_list = new List<Control>();
         private Type current_class_type;
         private int target_list_index;
+        private AddAlcoholObject AddObject;
         private int start_y = 25, count_y = 0, start_x = 25, count_x = 0;
 
-        public frmCreateObject(string class_str, object target_object, int target_index)
+        public frmCreateObject(string class_str, object target_object, int target_index, AddAlcoholObject AddObj)
         {
             InitializeComponent();
 
             current_class_type = Type.GetType(class_str, false, true);
             target_list_index = target_index;
+            AddObject = AddObj;
             if (target_object == null)
                 GenerateComponents(current_class_type.GetFields());
             else
                 GenerateComponents(current_class_type.GetFields(), target_object);
 
+            CreateButton(target_object != null ? "edit" : "create");
+        }
+
+        public void CreateButton(string text)
+        {
             var btn = new Button();
             btn.Location = new Point(start_x + 215 * count_x, start_y + 50 * count_y);
             btn.Name = "btn0";
-            btn.Text = "create";
+            btn.Text = text;
             btn.Size = new Size(75, 25);
             btn.Click += ButtonOnClick;
-
-            if (target_object != null)
-            {
-                btn.Text = "edit";
-                Text = "edit";
-            }
             Controls.Add(btn);
+            Text = text;
+        }
+
+        public void CreateLabel(FieldInfo field)
+        {
+            var label = new Label();
+            label.Location = new Point(start_x + 215 * count_x, start_y + 50 * count_y - 15);
+            label.Name = "lbl" + count_x + count_y;
+            label.Text = field.Name;
+            if (Attribute.IsDefined(field, typeof(NameAttribute)))
+                label.Text = (Attribute.GetCustomAttribute(field, typeof(NameAttribute)) as NameAttribute).Name;
+            if (!(field.FieldType.IsEnum || field.FieldType.Name == "Boolean"))
+                label.Text += $" ({field.FieldType.Name})";
+            label.Size = new Size(140, 15);
+            Controls.Add(label);
+        }
+
+        public void ConfigControl(Control control_obj, FieldInfo field)
+        {
+            control_obj.Location = new Point(start_x + 215 * count_x, start_y + 50 * count_y);
+            control_obj.Name = field.Name;
+            control_obj.Size = new Size(140, 25);
+            Controls.Add(control_obj);
+            control_list.Add(control_obj);
         }
 
         private void GenerateComponents(FieldInfo[] field_list, object target_object = null)   
@@ -52,16 +79,18 @@ namespace lab1
                     continue;
                 }
 
-                Control control_obj = new TextBox();
+                Control control_obj;
                 if (field.FieldType.Name == "Boolean")
                     control_obj = new CheckBox();
-                if (field.FieldType.IsEnum) 
+                else if (field.FieldType.IsEnum) 
                 {
                     control_obj = new ComboBox();
                     foreach (string item in Enum.GetNames(field.FieldType))
                         (control_obj as ComboBox).Items.Add(item);
                     (control_obj as ComboBox).DropDownStyle = ComboBoxStyle.DropDownList;
                 }
+                else
+                    control_obj = new TextBox();
 
                 if (target_object != null)
                 {
@@ -78,21 +107,9 @@ namespace lab1
                     count_y = 0;
                     count_x++;
                 }
-                control_obj.Location = new Point(start_x + 215 * count_x, start_y + 50 * count_y);
-                control_obj.Name = field.Name;
-                control_obj.Size = new Size(140, 25);
-                Controls.Add(control_obj);                                            
-                control_list.Add(control_obj);
 
-                var label = new Label();
-                label.Location = new Point(start_x + 215 * count_x, start_y + 50 * count_y - 15);
-                label.Name = "lbl" + count_x + count_y;
-                if (!(field.FieldType.IsEnum || field.FieldType.Name == "Boolean"))
-                    label.Text = $"{field.Name} ({field.FieldType.Name})";
-                else
-                    label.Text = field.Name;
-                label.Size = new Size(140, 15);
-                Controls.Add(label);
+                ConfigControl(control_obj, field);
+                CreateLabel(field);
                 count_y++;
             }
         }
@@ -147,11 +164,10 @@ namespace lab1
             var btn = (Button)sender;
             if (btn != null)
             {
-                frmMain frm = (frmMain)this.Owner;
                 object obj = FillObjectFields(current_class_type);
                 if (obj != null)
                 {
-                    frm.AddAlcoholObject(obj, target_list_index);
+                    AddObject(obj, target_list_index);
                     Close();
                 }
             }

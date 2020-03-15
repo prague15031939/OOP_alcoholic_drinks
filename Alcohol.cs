@@ -1,5 +1,14 @@
-﻿namespace Alcohol
+﻿using System;
+
+namespace Alcohol
 {
+    public delegate void AddAlcoholObject(object obj, int target_index = -1);
+
+    public class NameAttribute : Attribute
+    {
+        public string Name { get; set; }
+    }
+
     public enum hop_types
     {
         perle = 1,
@@ -32,7 +41,7 @@
         public string title;
         public string manufacturer;
         public double degree;
-        public double container_volume;
+        [Name(Name = "container volume")] public double container_volume;
     }
 
     public class Beer : AlcoholDrink
@@ -47,26 +56,26 @@
 
     public class CraftBeer : Beer
     {
-        public string addition_type;
-        public hop_types hop_type;
-        public extra_flavours extra_flavour;
+        [Name(Name = "addition type")] public string addition_type;
+        [Name(Name = "hop type")] public hop_types hop_type;
+        [Name(Name = "extra flavour")] public extra_flavours extra_flavour;
     }
 
     public class Wine : AlcoholDrink
     {
-        public string sugar_type;
+        [Name(Name = "sugar type")] public string sugar_type;
         public string color;
         public WineOrigin origin;
         public string aroma;
-        public string harmonious_dish;
+        [Name(Name = "harmonious dish")] public string harmonious_dish;
     }
 
     public class StrongDrink : AlcoholDrink
     {
-        public string main_component;
+        [Name(Name = "main component")] public string main_component;
         public strong_additions addition;
-        public int distillation_count;
-        public string alcohol_type;
+        [Name(Name = "distillation count")] public int distillation_count;
+        [Name(Name = "alcohol type")] public string alcohol_type;
     }
 
     public class WineOrigin
@@ -78,8 +87,8 @@
 
     public class BeerContainer
     {
-        public string container_material;
-        public int decor_quality;
-        public bool open_mechanism;
+        [Name(Name = "container material")] public string container_material;
+        [Name(Name = "decor quality")] public int decor_quality;
+        [Name(Name = "open mechanism")] public bool open_mechanism;
     }
 }

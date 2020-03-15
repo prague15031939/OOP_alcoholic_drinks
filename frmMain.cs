@@ -2,13 +2,15 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
+using Alcohol;
+
 namespace lab1
 {
     public partial class frmMain : Form
     {
         private List<object> object_list = new List<object>();
 
-        public void AddAlcoholObject(object obj, int target_index)
+        public void AddAlcoholObject(object obj, int target_index = -1)
         {
             if (target_index == -1)
             {
@@ -39,37 +41,40 @@ namespace lab1
             InitializeComponent();
         }
 
+        private void DeleteObject()
+        {
+            var temp_object_list = new List<object>();
+            for (int i = 0; i < object_list.Count; i++)
+                if (!lvMain.SelectedIndices.Contains(i))
+                    temp_object_list.Add(object_list[i]);
+
+            lvMain.Items.Clear();
+            object_list.Clear();
+            foreach (object obj in temp_object_list)
+                lvMain_AddObject(obj);        
+        }
+
+        private void EditObject() {
+            int index = lvMain.SelectedIndices[0];
+            string class_str = object_list[index].GetType().FullName;
+            var frm = new frmCreateObject(class_str, object_list[index], index, AddAlcoholObject);
+            frm.Show();
+        }
+
+        private void CreateObject()
+        {
+            var frm = new frmCreateObject(cbClasses.Text, null, -1, AddAlcoholObject);
+            frm.Show();
+        }
+
         private void lvMain_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Delete && lvMain.SelectedItems.Count != 0)
-            {
-                var temp_object_list = new List<object>();
-                for (int i = 0; i < object_list.Count; i++)
-                {
-                    if (!lvMain.SelectedIndices.Contains(i))
-                        temp_object_list.Add(object_list[i]);
-                }
-                lvMain.Items.Clear();
-                object_list.Clear();
-                foreach (object obj in temp_object_list)
-                   lvMain_AddObject(obj);
-            }
-
+                DeleteObject();
             if (e.KeyCode == Keys.E && lvMain.SelectedItems.Count == 1)
-            {
-                int index = lvMain.SelectedIndices[0];
-                string class_str = object_list[index].GetType().FullName;
-                var frm = new frmCreateObject(class_str, object_list[index], index);
-                frm.Owner = this;
-                frm.Show();
-            }
-
+                EditObject();
             if (e.KeyCode == Keys.Q && cbClasses.Text != "")
-            {
-                var frm = new frmCreateObject(cbClasses.Text, null, -1);
-                frm.Owner = this;
-                frm.Show();
-            }
+                CreateObject();
         }
 
     }
