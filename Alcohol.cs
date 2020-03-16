@@ -2,7 +2,7 @@
 
 namespace Alcohol
 {
-    public delegate void AddAlcoholObject(object obj, int target_index = -1);
+    public delegate void ReturnMethod(object obj);
 
     public class NameAttribute : Attribute
     {

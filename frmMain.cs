@@ -9,17 +9,18 @@ namespace lab1
     public partial class frmMain : Form
     {
         private List<object> object_list = new List<object>();
+        private int target_list_index;
 
-        public void AddAlcoholObject(object obj, int target_index = -1)
+        public void AddAlcoholObject(object obj)
         {
-            if (target_index == -1)
+            if (target_list_index == -1)
             {
                 object_list.Add(obj);
                 lvMain_AddObject(obj);
             }
             else
             {
-                object_list[target_index] = obj;
+                object_list[target_list_index] = obj;
                 lvMain.Items.Clear();
                 foreach (object entity in object_list)
                     lvMain_AddObject(entity);
@@ -55,16 +56,17 @@ namespace lab1
         }
 
         private void EditObject() {
-            int index = lvMain.SelectedIndices[0];
-            string class_str = object_list[index].GetType().FullName;
-            var frm = new frmCreateObject(class_str, object_list[index], index, AddAlcoholObject);
-            frm.Show();
+            target_list_index = lvMain.SelectedIndices[0];
+            string class_str = object_list[target_list_index].GetType().FullName;
+            var frm = new frmCreateObject(class_str, object_list[target_list_index], AddAlcoholObject);
+            frm.ShowDialog();
         }
 
         private void CreateObject()
         {
-            var frm = new frmCreateObject(cbClasses.Text, null, -1, AddAlcoholObject);
-            frm.Show();
+            target_list_index = -1;
+            var frm = new frmCreateObject(cbClasses.Text, null, AddAlcoholObject);
+            frm.ShowDialog();
         }
 
         private void lvMain_KeyDown(object sender, KeyEventArgs e)

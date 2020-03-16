@@ -12,38 +12,35 @@ namespace lab1
     {
         private List<Control> control_list = new List<Control>();
         private Type current_class_type;
-        private int target_list_index;
-        private AddAlcoholObject AddObject;
+        private Dictionary<FieldInfo, object> association_dict = new Dictionary<FieldInfo, object>();
+        private object target_object;
+        private FieldInfo target_field;
+        private ReturnMethod ReturnObject;
         private int start_y = 25, count_y = 0, start_x = 25, count_x = 0;
 
-        public frmCreateObject(string class_str, object target_object, int target_index, AddAlcoholObject AddObj)
+        public frmCreateObject(string class_str, object target_obj, ReturnMethod ReturnObj)
         {
             InitializeComponent();
 
             current_class_type = Type.GetType(class_str, false, true);
-            target_list_index = target_index;
-            AddObject = AddObj;
-            if (target_object == null)
-                GenerateComponents(current_class_type.GetFields());
-            else
-                GenerateComponents(current_class_type.GetFields(), target_object);
-
-            CreateButton(target_object != null ? "edit" : "create");
+            target_object = target_obj;
+            ReturnObject = ReturnObj;
+            GenerateComponents(current_class_type.GetFields());
         }
 
-        public void CreateButton(string text)
+        private void CreateButton(string caption, string name, object tag = null)
         {
             var btn = new Button();
             btn.Location = new Point(start_x + 215 * count_x, start_y + 50 * count_y);
-            btn.Name = "btn0";
-            btn.Text = text;
+            btn.Name = name;
+            btn.Text = caption;
+            btn.Tag = tag;
             btn.Size = new Size(75, 25);
             btn.Click += ButtonOnClick;
             Controls.Add(btn);
-            Text = text;
         }
 
-        public void CreateLabel(FieldInfo field)
+        private void CreateLabel(FieldInfo field)
         {
             var label = new Label();
             label.Location = new Point(start_x + 215 * count_x, start_y + 50 * count_y - 15);
@@ -51,13 +48,13 @@ namespace lab1
             label.Text = field.Name;
             if (Attribute.IsDefined(field, typeof(NameAttribute)))
                 label.Text = (Attribute.GetCustomAttribute(field, typeof(NameAttribute)) as NameAttribute).Name;
-            if (!(field.FieldType.IsEnum || field.FieldType.Name == "Boolean"))
+            if (!(field.FieldType.IsEnum || field.FieldType.Name == "Boolean" || field.FieldType.Namespace == "Alcohol"))
                 label.Text += $" ({field.FieldType.Name})";
             label.Size = new Size(140, 15);
             Controls.Add(label);
         }
 
-        public void ConfigControl(Control control_obj, FieldInfo field)
+        private void ConfigControl(Control control_obj, FieldInfo field)
         {
             control_obj.Location = new Point(start_x + 215 * count_x, start_y + 50 * count_y);
             control_obj.Name = field.Name;
@@ -66,52 +63,73 @@ namespace lab1
             control_list.Add(control_obj);
         }
 
-        private void GenerateComponents(FieldInfo[] field_list, object target_object = null)   
+        private Control GetControl(FieldInfo field)
+        {
+            Control control_obj;
+            if (field.FieldType.Name == "Boolean")
+                control_obj = new CheckBox();
+            else if (field.FieldType.IsEnum)
+            {
+                control_obj = new ComboBox();
+                foreach (string item in Enum.GetNames(field.FieldType))
+                    (control_obj as ComboBox).Items.Add(item);
+                (control_obj as ComboBox).DropDownStyle = ComboBoxStyle.DropDownList;
+            }
+            else
+                control_obj = new TextBox();
+            return control_obj;
+        }
+
+        private void GenerateComponents(FieldInfo[] field_list)  
         {
             foreach (FieldInfo field in field_list)
             {
-                if (field.FieldType.Namespace == "Alcohol" && !field.FieldType.IsEnum)
-                {
-                    object sub_object = null;
-                    if (target_object != null)            
-                        sub_object = field.GetValue(target_object);         
-                    GenerateComponents(field.FieldType.GetFields(), sub_object); 
-                    continue;
-                }
-
-                Control control_obj;
-                if (field.FieldType.Name == "Boolean")
-                    control_obj = new CheckBox();
-                else if (field.FieldType.IsEnum) 
-                {
-                    control_obj = new ComboBox();
-                    foreach (string item in Enum.GetNames(field.FieldType))
-                        (control_obj as ComboBox).Items.Add(item);
-                    (control_obj as ComboBox).DropDownStyle = ComboBoxStyle.DropDownList;
-                }
-                else
-                    control_obj = new TextBox();
-
-                if (target_object != null)
-                {
-                    if (field.FieldType.Name == "String" || field.FieldType.Name == "Double" || field.FieldType.Name == "Int32")
-                        control_obj.Text = field.GetValue(target_object).ToString();
-                    else if (field.FieldType.Name == "Boolean")
-                        (control_obj as CheckBox).Checked = (bool)field.GetValue(target_object);
-                    else if (field.FieldType.IsEnum)
-                        (control_obj as ComboBox).Text = field.GetValue(target_object).ToString();
-                }
-
                 if (start_y + 50 * count_y + 30 >= ClientSize.Height)
                 {
                     count_y = 0;
                     count_x++;
                 }
 
-                ConfigControl(control_obj, field);
-                CreateLabel(field);
+                if (field.FieldType.Namespace == "Alcohol" && !field.FieldType.IsEnum)
+                    CreateButton(field.Name + "->", "btn_" + field.Name, field);
+                else
+                {
+                    Control control_obj = GetControl(field);
+                    if (target_object != null)
+                        SetControlData(ref control_obj, field, target_object);
+                    ConfigControl(control_obj, field);
+                    CreateLabel(field);
+                }
+
                 count_y++;
             }
+
+            CreateButton(target_object != null ? "edit" : "create", target_object != null ? "btn_edit" : "btn_create");
+            Text = target_object != null ? "edit" : "create";
+        }
+
+        private void SetControlData(ref Control control_obj, FieldInfo field, object target_object)
+        {
+            if (field.FieldType.Name == "String" || field.FieldType.Name == "Double" || field.FieldType.Name == "Int32")
+                control_obj.Text = field.GetValue(target_object).ToString();
+            else if (field.FieldType.Name == "Boolean")
+                (control_obj as CheckBox).Checked = (bool)field.GetValue(target_object);
+            else if (field.FieldType.IsEnum)
+                (control_obj as ComboBox).Text = field.GetValue(target_object).ToString();
+        }
+
+        private void GetControlData(Control obj, FieldInfo field, ref object entity)
+        {
+            if (field.FieldType.Name == "String")
+                field.SetValue(entity, obj.Text);
+            else if (obj.Text != "" && field.FieldType.Name == "Int32")
+                field.SetValue(entity, Convert.ToInt32(obj.Text));
+            else if (obj.Text != "" && field.FieldType.Name == "Double")
+                field.SetValue(entity, Convert.ToDouble(obj.Text, System.Globalization.CultureInfo.InvariantCulture));
+            else if (field.FieldType.Name == "Boolean")
+                field.SetValue(entity, (obj as CheckBox).Checked);
+            else if (obj.Text != "" && field.FieldType.IsEnum)
+                field.SetValue(entity, Enum.Parse(field.FieldType, obj.Text));
         }
 
         private object FillObjectFields(Type class_type)
@@ -123,10 +141,8 @@ namespace lab1
             {
                 if (field.FieldType.Namespace == "Alcohol" && !field.FieldType.IsEnum)
                 {
-                    object sub_entity = FillObjectFields(field.FieldType);
-                    if (sub_entity == null)
-                        return null;
-                    field.SetValue(entity, sub_entity);
+                    if (association_dict.ContainsKey(field))
+                        field.SetValue(entity, association_dict[field]);
                     continue;
                 }
 
@@ -136,16 +152,7 @@ namespace lab1
                     {
                         try
                         {
-                            if (field.FieldType.Name == "String")
-                                field.SetValue(entity, obj.Text);
-                            else if (obj.Text != "" && field.FieldType.Name == "Int32")
-                                field.SetValue(entity, Convert.ToInt32(obj.Text));
-                            else if (obj.Text != "" && field.FieldType.Name == "Double")
-                                field.SetValue(entity, Convert.ToDouble(obj.Text, System.Globalization.CultureInfo.InvariantCulture));
-                            else if (field.FieldType.Name == "Boolean")
-                                field.SetValue(entity, (obj as CheckBox).Checked);
-                            else if (obj.Text != "" && field.FieldType.IsEnum)
-                                field.SetValue(entity, Enum.Parse(field.FieldType, obj.Text));
+                            GetControlData(obj, field, ref entity);
                             break;
                         }
                         catch (FormatException exp)
@@ -159,17 +166,34 @@ namespace lab1
             return entity;
         }
 
+        private void AddAssociation(object obj)
+        {
+            if (!association_dict.ContainsKey(target_field))
+                association_dict.Add(target_field, obj);
+            else
+                association_dict[target_field] = obj;
+        }
+
         private void ButtonOnClick(object sender, EventArgs e)
         {
             var btn = (Button)sender;
-            if (btn != null)
+            if (btn != null && (btn.Name == "btn_create" || btn.Name == "btn_edit"))
             {
                 object obj = FillObjectFields(current_class_type);
                 if (obj != null)
                 {
-                    AddObject(obj, target_list_index);
+                    ReturnObject(obj);
                     Close();
                 }
+            }
+            else if (btn != null)
+            {
+                target_field = btn.Tag as FieldInfo;
+                object temp = target_object == null ? null : target_field.GetValue(target_object);
+                if (association_dict.ContainsKey(target_field))
+                    temp = association_dict[target_field];
+                var frm = new frmCreateObject((btn.Tag as FieldInfo).FieldType.ToString(), temp, AddAssociation);
+                frm.ShowDialog();
             }
         }
 
