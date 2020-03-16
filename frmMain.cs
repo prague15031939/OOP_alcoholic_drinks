@@ -69,6 +69,12 @@ namespace lab1
             frm.ShowDialog();
         }
 
+        private void ViewObject()
+        {
+            var frm = new frmReport(object_list[lvMain.SelectedIndices[0]]);
+            frm.ShowDialog();
+        }
+
         private void lvMain_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Delete && lvMain.SelectedItems.Count != 0)
@@ -77,6 +83,8 @@ namespace lab1
                 EditObject();
             if (e.KeyCode == Keys.Q && cbClasses.Text != "")
                 CreateObject();
+            if (e.KeyCode == Keys.W && lvMain.SelectedItems.Count == 1)
+                ViewObject();
         }
 
     }

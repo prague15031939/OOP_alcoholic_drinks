@@ -28,3 +28,4 @@ D:\Works C#\oop alcoholic drinks\OOP_alcoholic_drinks\obj\Debug\lab1.Properties.
 D:\Works C#\oop alcoholic drinks\OOP_alcoholic_drinks\obj\Debug\lab1.csproj.GenerateResource.cache
 D:\Works C#\oop alcoholic drinks\OOP_alcoholic_drinks\obj\Debug\lab1.exe
 D:\Works C#\oop alcoholic drinks\OOP_alcoholic_drinks\obj\Debug\lab1.pdb
+D:\Works C#\oop alcoholic drinks\OOP_alcoholic_drinks\obj\Debug\lab1.frmReport.resources
