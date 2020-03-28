@@ -91,7 +91,7 @@ namespace lab1
                 }
 
                 if (field.FieldType.Namespace == "Alcohol" && !field.FieldType.IsEnum)
-                    CreateButton(field.Name + "->", "btn_" + field.Name, field);
+                    CreateButton(field.Name + " ->", "btn_" + field.Name, field);
                 else
                 {
                     Control control_obj = GetControl(field);
@@ -121,7 +121,12 @@ namespace lab1
         private void GetControlData(Control obj, FieldInfo field, ref object entity)
         {
             if (field.FieldType.Name == "String")
+            {
+                char[] bad_symbols = { '{', '}', ';', ':', '\u0000', };
+                if (obj.Text.IndexOfAny(bad_symbols) != -1)
+                    throw new FormatException();
                 field.SetValue(entity, obj.Text);
+            }
             else if (obj.Text != "" && field.FieldType.Name == "Int32")
                 field.SetValue(entity, Convert.ToInt32(obj.Text));
             else if (obj.Text != "" && field.FieldType.Name == "Double")

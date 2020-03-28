@@ -6,9 +6,10 @@ namespace Alcohol
 
     public class NameAttribute : Attribute
     {
-        public string Name { get; set; }
+        public string Name;
     }
 
+    [Serializable]
     public enum hop_types
     {
         perle = 1,
@@ -19,6 +20,7 @@ namespace Alcohol
         galaxy = 6,
     }
 
+    [Serializable]
     public enum extra_flavours
     {
         fruit = 1,
@@ -28,6 +30,7 @@ namespace Alcohol
         wheat = 5,
     }
 
+    [Serializable]
     public enum strong_additions
     {
         wheat = 1,
@@ -36,6 +39,7 @@ namespace Alcohol
         silver = 4,
     }
 
+    [Serializable]
     public class AlcoholDrink
     {
         public string title;
@@ -44,6 +48,7 @@ namespace Alcohol
         [Name(Name = "container volume")] public double container_volume;
     }
 
+    [Serializable]
     public class Beer : AlcoholDrink
     {
         public string sort;
@@ -54,6 +59,7 @@ namespace Alcohol
         public BeerContainer container;
     }
 
+    [Serializable]
     public class CraftBeer : Beer
     {
         [Name(Name = "addition type")] public string addition_type;
@@ -61,6 +67,7 @@ namespace Alcohol
         [Name(Name = "extra flavour")] public extra_flavours extra_flavour;
     }
 
+    [Serializable]
     public class Wine : AlcoholDrink
     {
         [Name(Name = "sugar type")] public string sugar_type;
@@ -70,6 +77,7 @@ namespace Alcohol
         [Name(Name = "harmonious dish")] public string harmonious_dish;
     }
 
+    [Serializable]
     public class StrongDrink : AlcoholDrink
     {
         [Name(Name = "main component")] public string main_component;
@@ -78,6 +86,7 @@ namespace Alcohol
         [Name(Name = "alcohol type")] public string alcohol_type;
     }
 
+    [Serializable]
     public class WineOrigin
     {
         public int year;
@@ -85,6 +94,7 @@ namespace Alcohol
         public string region;
     }
 
+    [Serializable]
     public class BeerContainer
     {
         [Name(Name = "container material")] public string container_material;

@@ -1,0 +1,7 @@
+*.resx
+*.config
+
+packages/
+Properties/
+obj/
+.vs/
