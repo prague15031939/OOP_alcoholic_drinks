@@ -1,4 +1,4 @@
-﻿namespace lab1
+﻿namespace AlcoholicDrinks
 {
     partial class frmMain
     {

@@ -6,7 +6,7 @@ using System.Reflection;
 
 using Alcohol;
 
-namespace lab1
+namespace AlcoholicDrinks
 { 
     public partial class frmCreateObject : Form
     {
@@ -96,7 +96,7 @@ namespace lab1
                 {
                     Control control_obj = GetControl(field);
                     if (target_object != null)
-                        SetControlData(ref control_obj, field, target_object);
+                        SetControlData(control_obj, field, target_object);
                     ConfigControl(control_obj, field);
                     CreateLabel(field);
                 }
@@ -108,7 +108,7 @@ namespace lab1
             Text = target_object != null ? "edit" : "create";
         }
 
-        private void SetControlData(ref Control control_obj, FieldInfo field, object target_object)
+        private void SetControlData(Control control_obj, FieldInfo field, object target_object)
         {
             if (field.FieldType.Name == "String" || field.FieldType.Name == "Double" || field.FieldType.Name == "Int32")
                 control_obj.Text = field.GetValue(target_object).ToString();
@@ -118,11 +118,11 @@ namespace lab1
                 (control_obj as ComboBox).Text = field.GetValue(target_object).ToString();
         }
 
-        private void GetControlData(Control obj, FieldInfo field, ref object entity)
+        private void GetControlData(Control obj, FieldInfo field, object entity)
         {
             if (field.FieldType.Name == "String")
             {
-                char[] bad_symbols = { '{', '}', ';', ':', '\u0000', };
+                char[] bad_symbols = { '{', '}', ';', ':', '?', };
                 if (obj.Text.IndexOfAny(bad_symbols) != -1)
                     throw new FormatException();
                 field.SetValue(entity, obj.Text);
@@ -157,7 +157,7 @@ namespace lab1
                     {
                         try
                         {
-                            GetControlData(obj, field, ref entity);
+                            GetControlData(obj, field, entity);
                             break;
                         }
                         catch (FormatException exp)

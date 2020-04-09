@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-using Alcohol;
-
-namespace lab1
+namespace AlcoholicDrinks
 {
     public partial class frmMain : Form
     {

@@ -10,7 +10,7 @@ namespace Alcohol
     }
 
     [Serializable]
-    public enum hop_types
+    public enum HopType
     {
         perle = 1,
         saphir = 2,
@@ -21,7 +21,7 @@ namespace Alcohol
     }
 
     [Serializable]
-    public enum extra_flavours
+    public enum ExtraFlavour
     {
         fruit = 1,
         flower = 2,
@@ -31,7 +31,7 @@ namespace Alcohol
     }
 
     [Serializable]
-    public enum strong_additions
+    public enum StrongAddition
     {
         wheat = 1,
         birch_buds = 2,
@@ -63,8 +63,8 @@ namespace Alcohol
     public class CraftBeer : Beer
     {
         [Name(Name = "addition type")] public string addition_type;
-        [Name(Name = "hop type")] public hop_types hop_type;
-        [Name(Name = "extra flavour")] public extra_flavours extra_flavour;
+        [Name(Name = "hop type")] public HopType hop_type;
+        [Name(Name = "extra flavour")] public ExtraFlavour extra_flavour;
     }
 
     [Serializable]
@@ -81,7 +81,7 @@ namespace Alcohol
     public class StrongDrink : AlcoholDrink
     {
         [Name(Name = "main component")] public string main_component;
-        public strong_additions addition;
+        public StrongAddition addition;
         [Name(Name = "distillation count")] public int distillation_count;
         [Name(Name = "alcohol type")] public string alcohol_type;
     }

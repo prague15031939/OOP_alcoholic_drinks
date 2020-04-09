@@ -4,7 +4,7 @@ using System.Reflection;
 
 using Alcohol;
 
-namespace lab1
+namespace AlcoholicDrinks
 {
     public partial class frmReport : Form
     {
@@ -35,7 +35,7 @@ namespace lab1
                 else
                     str_item += field.Name;
 
-                object value = "";
+                object value;
                 if (field.GetValue(obj) == null)
                     value = "null";
                 else if ((field.GetValue(obj) as string) == "")
