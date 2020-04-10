@@ -90,6 +90,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Alcohol.cs" />
+    <Compile Include="PluginInterface.cs" />
     <Compile Include="Serializers\BinarySerializator.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="frmCreateObject.cs">

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -6,9 +7,16 @@ namespace AlcoholicDrinks
 {
     public partial class frmMain : Form
     {
+        private string plugin_path = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
+        private List<IPlugin> plugin_list = new List<IPlugin>();
         private List<Creator> creator_list = new List<Creator> { new TextCreator(), new BinaryCreator(), new JsonCreator() };
         private List<object> object_list = new List<object>();
         private int target_list_index;
+
+        private void RefreshPlugins()
+        {
+            //
+        }
 
         public void AddAlcoholObject(object obj)
         {
@@ -44,6 +52,8 @@ namespace AlcoholicDrinks
             openDialog.Filter = "Text files (*.txt)|*.txt|Binary files (*.bin)|*.bin|Json files (*.json)|*.json";
             saveDialog.Filter = "Text files (*.txt)|*.txt|Binary files (*.bin)|*.bin|Json files (*.json)|*.json";
             saveDialog.AddExtension = true;
+
+            RefreshPlugins();
         }
 
         private void DeleteObject()
