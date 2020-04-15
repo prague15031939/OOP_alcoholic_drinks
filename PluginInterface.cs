@@ -11,8 +11,8 @@ namespace PluginInterface
 
     public interface IPlugin
     {
-        void PostProcessString(string input_string, string FilePath);
-        void PostProcessStream(MemoryStream input_stream, string FilePath);
+        void PostProcessString(string InputString, string FilePath);
+        void PostProcessStream(MemoryStream InputStream, string FilePath);
         string PreProcessString(string FilePath);
         MemoryStream PreProcessStream(string FilePath);
     }

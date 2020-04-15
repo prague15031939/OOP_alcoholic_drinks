@@ -16,37 +16,37 @@ namespace Serializers
             FilePath = fPath;
         }
 
-        public override void Serialize(List<object> object_list, IPlugin plugin)
+        public override void Serialize(List<object> ObjectList, IPlugin plugin)
         {
-            MemoryStream serialization_stream = new MemoryStream();
-            formatter.Serialize(serialization_stream, object_list);
+            MemoryStream SerializationStream = new MemoryStream();
+            formatter.Serialize(SerializationStream, ObjectList);
             if (plugin == null)
             {
                 using (FileStream fStream = new FileStream(FilePath, FileMode.Create))
                 {
-                    serialization_stream.Position = 0;
-                    serialization_stream.CopyTo(fStream);
+                    SerializationStream.Position = 0;
+                    SerializationStream.CopyTo(fStream);
                 }
             }
             else
-                plugin.PostProcessStream(serialization_stream, FilePath);
+                plugin.PostProcessStream(SerializationStream, FilePath);
         }
 
         public override List<object> Deserealize(IPlugin plugin)
         {
-            MemoryStream serialization_stream = new MemoryStream();
+            MemoryStream SerializationStream = new MemoryStream();
             if (plugin == null)
             {
                 using (FileStream fStream = new FileStream(FilePath, FileMode.Open))
                 {
-                    fStream.CopyTo(serialization_stream);
+                    fStream.CopyTo(SerializationStream);
                 }
             }
             else
-                serialization_stream = plugin.PreProcessStream(FilePath);
-            serialization_stream.Position = 0;
-            List<object> object_list = (List<object>)formatter.Deserialize(serialization_stream);
-            return object_list;
+                SerializationStream = plugin.PreProcessStream(FilePath);
+            SerializationStream.Position = 0;
+            List<object> ObjectList = (List<object>)formatter.Deserialize(SerializationStream);
+            return ObjectList;
         }
     }
 }

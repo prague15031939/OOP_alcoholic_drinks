@@ -21,12 +21,12 @@ namespace Serializers
             if (obj == null)
                 return result;
 
-            Type class_type = obj.GetType();
-            result += '?' + class_type.ToString() + "{";
+            Type ClassType = obj.GetType();
+            result += '?' + ClassType.ToString() + "{";
 
-            foreach (FieldInfo field in class_type.GetFields())
+            foreach (FieldInfo field in ClassType.GetFields())
             {
-                string str_item = field.Name;
+                string ItemStr = field.Name;
 
                 object value = "";
                 if (field.GetValue(obj) == null)
@@ -37,8 +37,8 @@ namespace Serializers
                     value += ObjectToStr(field.GetValue(obj));
                 else
                     value = field.GetValue(obj);
-                str_item += $":{value.ToString()};";
-                result += str_item;
+                ItemStr += $":{value.ToString()};";
+                result += ItemStr;
             }
             return result + "}";
         }
@@ -61,11 +61,11 @@ namespace Serializers
                 field.SetValue(obj, Enum.Parse(field.FieldType, value));
         }
 
-        private int GetCloseBracketPos(string str, int start_pos)
+        private int GetCloseBracketPos(string str, int StartPos)
         {
             bool started = false;
             int rank = 0;
-            for (int i = start_pos; i < str.Length; i++)
+            for (int i = StartPos; i < str.Length; i++)
             {
                 if (str[i] == '{') { rank++; started = true; }
                 if (str[i] == '}') rank--;
@@ -76,34 +76,34 @@ namespace Serializers
 
         private object StrToObject(string str)
         {
-            int class_str_start = str.IndexOf('?') + 1;
-            int class_str_end = str.IndexOf('{');
-            int class_decl_end = GetCloseBracketPos(str, class_str_end);
-            string class_str = str.Substring(class_str_start, class_str_end - class_str_start);
-            Type class_type = Type.GetType(class_str, false, true);
-            object obj = Activator.CreateInstance(class_type);
-            str = str.Substring(class_str_end + 1, class_decl_end - class_str_end - 1);
+            int ClassStrStart = str.IndexOf('?') + 1;
+            int ClassStrEnd = str.IndexOf('{');
+            int ClassDeclarationEnd = GetCloseBracketPos(str, ClassStrEnd);
+            string class_str = str.Substring(ClassStrStart, ClassStrEnd - ClassStrStart);
+            Type ClassType = Type.GetType(class_str, false, true);
+            object obj = Activator.CreateInstance(ClassType);
+            str = str.Substring(ClassStrEnd + 1, ClassDeclarationEnd - ClassStrEnd - 1);
 
-            var sub_objects = new List<object>();
+            var SubObjects = new List<object>();
             while (str.Contains("?"))
             {
-                sub_objects.Add(StrToObject(str));
-                int rem_start = str.IndexOf("?");
-                int rem_end = GetCloseBracketPos(str, rem_start);
-                str = str.Remove(rem_start, rem_end - rem_start + 1);
+                SubObjects.Add(StrToObject(str));
+                int remStart = str.IndexOf("?");
+                int remEnd = GetCloseBracketPos(str, remStart);
+                str = str.Remove(remStart, remEnd - remStart + 1);
             }
 
-            string[] item_list = str.Split(';');
-            foreach (string item in item_list)
+            string[] ItemList = str.Split(';');
+            foreach (string item in ItemList)
             {
                 if (item != "")
                 {
-                    string field_str = item.Split(':')[0];
+                    string FieldStr = item.Split(':')[0];
                     string value = item.Split(':')[1];
 
-                    foreach (FieldInfo field in class_type.GetFields())
+                    foreach (FieldInfo field in ClassType.GetFields())
                     {
-                        if (field.Name == field_str)
+                        if (field.Name == FieldStr)
                         {
                             if (value != "")
                             {
@@ -111,12 +111,12 @@ namespace Serializers
                             }
                             else
                             {
-                                foreach (object sub_obj in sub_objects)
+                                foreach (object SubObj in SubObjects)
                                 {
-                                    if (field.FieldType == sub_obj.GetType())
+                                    if (field.FieldType == SubObj.GetType())
                                     {
-                                        field.SetValue(obj, sub_obj);
-                                        sub_objects.Remove(sub_obj);
+                                        field.SetValue(obj, SubObj);
+                                        SubObjects.Remove(SubObj);
                                         break;
                                     }
                                 }
@@ -129,46 +129,46 @@ namespace Serializers
             return obj;
         }
 
-        public override void Serialize(List<object> object_list, IPlugin plugin)
+        public override void Serialize(List<object> ObjectList, IPlugin plugin)
         {
-            string text_string = "";
-            foreach (object obj in object_list)
-                text_string += $"{ObjectToStr(obj)}\n";
+            string TextString = "";
+            foreach (object obj in ObjectList)
+                TextString += $"{ObjectToStr(obj)}\n";
             if (plugin == null)
             {
                 using (StreamWriter fStream = new StreamWriter(FilePath))
                 {
-                    fStream.Write(text_string);
+                    fStream.Write(TextString);
                 }
             }
             else
-                plugin.PostProcessString(text_string, FilePath);
+                plugin.PostProcessString(TextString, FilePath);
         }
 
         public override List<object> Deserealize(IPlugin plugin)
         {
-            string text_string;
+            string TextString;
             if (plugin == null)
             {
                 using (StreamReader fStream = new StreamReader(FilePath))
                 {
-                    text_string = fStream.ReadToEnd();    
+                    TextString = fStream.ReadToEnd();    
                 }
             }
             else
-                text_string = plugin.PreProcessString(FilePath);
+                TextString = plugin.PreProcessString(FilePath);
 
-            var object_list = new List<object>();
-            string[] line_list = text_string.Split('\n');
-            foreach (string line in line_list)
+            var ObjectList = new List<object>();
+            string[] LineList = TextString.Split('\n');
+            foreach (string line in LineList)
             {
                 if (line != "")
                 {
                     object obj = StrToObject(line);
-                    object_list.Add(obj);
+                    ObjectList.Add(obj);
                 }
             }
-            return object_list;
+            return ObjectList;
         }
     }
 }

@@ -9,22 +9,22 @@ namespace AlcoholicDrinks
 {
     public partial class frmMain : Form
     {
-        private List<Creator> creator_list = new List<Creator> { new TextCreator(), new BinaryCreator(), new JsonCreator() };
-        private List<object> object_list = new List<object>();
-        private int target_list_index;
+        private List<Creator> CreatorList = new List<Creator> { new TextCreator(), new BinaryCreator(), new JsonCreator() };
+        private List<object> ObjectList = new List<object>();
+        private int TargetListIndex;
 
         public void AddAlcoholObject(object obj)
         {
-            if (target_list_index == -1)
+            if (TargetListIndex == -1)
             {
-                object_list.Add(obj);
+                ObjectList.Add(obj);
                 lvMain_AddObject(obj);
             }
             else
             {
-                object_list[target_list_index] = obj;
+                ObjectList[TargetListIndex] = obj;
                 lvMain.Items.Clear();
-                foreach (object entity in object_list)
+                foreach (object entity in ObjectList)
                     lvMain_AddObject(entity);
             }
         }
@@ -32,11 +32,11 @@ namespace AlcoholicDrinks
         private void lvMain_AddObject(object obj)
         {
             var item = new ListViewItem();
-            var class_type = obj.GetType();
-            item.Text = (string)class_type.GetField("title").GetValue(obj);
-            item.SubItems.Add((string)class_type.GetField("manufacturer").GetValue(obj));
-            item.SubItems.Add(((double)class_type.GetField("degree").GetValue(obj)).ToString());
-            item.SubItems.Add(((double)class_type.GetField("container_volume").GetValue(obj)).ToString());
+            var ClassType = obj.GetType();
+            item.Text = (string)ClassType.GetField("title").GetValue(obj);
+            item.SubItems.Add((string)ClassType.GetField("manufacturer").GetValue(obj));
+            item.SubItems.Add(((double)ClassType.GetField("degree").GetValue(obj)).ToString());
+            item.SubItems.Add(((double)ClassType.GetField("container_volume").GetValue(obj)).ToString());
             lvMain.Items.Add(item);
         }
 
@@ -47,34 +47,34 @@ namespace AlcoholicDrinks
 
         private void DeleteObject()
         {
-            var temp_object_list = new List<object>();
-            for (int i = 0; i < object_list.Count; i++)
+            var TempListObject = new List<object>();
+            for (int i = 0; i < ObjectList.Count; i++)
                 if (!lvMain.SelectedIndices.Contains(i))
-                    temp_object_list.Add(object_list[i]);
+                    TempListObject.Add(ObjectList[i]);
 
             lvMain.Items.Clear();
-            object_list.Clear();
-            foreach (object obj in temp_object_list)
+            ObjectList.Clear();
+            foreach (object obj in TempListObject)
                 lvMain_AddObject(obj);        
         }
 
         private void EditObject() {
-            target_list_index = lvMain.SelectedIndices[0];
-            string class_str = object_list[target_list_index].GetType().FullName;
-            var frm = new frmCreateObject(class_str, object_list[target_list_index], AddAlcoholObject);
+            TargetListIndex = lvMain.SelectedIndices[0];
+            string ClassStr = ObjectList[TargetListIndex].GetType().FullName;
+            var frm = new frmCreateObject(ClassStr, ObjectList[TargetListIndex], AddAlcoholObject);
             frm.ShowDialog();
         }
 
         private void CreateObject()
         {
-            target_list_index = -1;
+            TargetListIndex = -1;
             var frm = new frmCreateObject($"Alcohol.{cbClasses.Text}", null, AddAlcoholObject);
             frm.ShowDialog();
         }
 
         private void ViewObject()
         {
-            var frm = new frmReport(object_list[lvMain.SelectedIndices[0]]);
+            var frm = new frmReport(ObjectList[lvMain.SelectedIndices[0]]);
             frm.ShowDialog();
         }
 
@@ -114,10 +114,10 @@ namespace AlcoholicDrinks
                 DeleteObject();
         }
 
-        private void RefreshFileOpenInfo(List<IPlugin> plugin_list)
+        private void RefreshFileOpenInfo(List<IPlugin> PluginList)
         {
             openDialog.Filter = "Text files (*.txt)|*.txt|Binary files (*.bin)|*.bin|Json files (*.json)|*.json";
-            foreach (IPlugin plugin in plugin_list)
+            foreach (IPlugin plugin in PluginList)
             {
                 if (Attribute.IsDefined(plugin.GetType(), typeof(NameAttribute)))
                 {
@@ -144,15 +144,15 @@ namespace AlcoholicDrinks
             }
         }
 
-        private IPlugin GetOpenPlugin(List<IPlugin> plugin_list, string file_name)
+        private IPlugin GetOpenPlugin(List<IPlugin> PluginList, string FileName)
         {
-            foreach (IPlugin plugin in plugin_list)
+            foreach (IPlugin plugin in PluginList)
             {
                 if (Attribute.IsDefined(plugin.GetType(), typeof(NameAttribute)))
                 {
                     string PluginExtension = (Attribute.GetCustomAttribute(plugin.GetType(), typeof(NameAttribute)) as NameAttribute).PluginExtension;
-                    var file_info = new FileInfo(file_name);
-                    if (file_info.Extension.Contains(PluginExtension))
+                    var FileInfo = new FileInfo(FileName);
+                    if (FileInfo.Extension.Contains(PluginExtension))
                         return plugin;
                 }
             }
@@ -161,22 +161,22 @@ namespace AlcoholicDrinks
 
         private void OpenFile()
         {
-            var load_obj = new PluginLoader();
-            List<IPlugin> plugin_list = load_obj.RefreshPlugins();
-            RefreshFileOpenInfo(plugin_list);
+            var loadObj = new PluginLoader();
+            List<IPlugin> PluginList = loadObj.RefreshPlugins();
+            RefreshFileOpenInfo(PluginList);
 
             if (openDialog.ShowDialog() == DialogResult.Cancel)
                 return;
 
-            string file_name = openDialog.FileName;
-            int creator_index = (openDialog.FilterIndex - 1) % creator_list.Count;
-            var serializator = creator_list[creator_index].Create(file_name);
+            string FileName = openDialog.FileName;
+            int CreatorIndex = (openDialog.FilterIndex - 1) % CreatorList.Count;
+            var serializator = CreatorList[CreatorIndex].Create(FileName);
 
-            IPlugin plugin = GetOpenPlugin(plugin_list, file_name);
-            object_list = serializator.Deserealize(plugin);
+            IPlugin plugin = GetOpenPlugin(PluginList, FileName);
+            ObjectList = serializator.Deserealize(plugin);
 
             lvMain.Items.Clear();
-            foreach (object entity in object_list)
+            foreach (object entity in ObjectList)
                 lvMain_AddObject(entity);
         }
 
@@ -186,10 +186,10 @@ namespace AlcoholicDrinks
             if (saveDialog.ShowDialog() == DialogResult.Cancel)
                 return;
 
-            string file_name = saveDialog.FileName;
-            int creator_index = saveDialog.FilterIndex - 1;
-            var serializator = creator_list[creator_index].Create(file_name);
-            serializator.Serialize(object_list, plugin);
+            string FileName = saveDialog.FileName;
+            int CreatorIndex = saveDialog.FilterIndex - 1;
+            var serializator = CreatorList[CreatorIndex].Create(FileName);
+            serializator.Serialize(ObjectList, plugin);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)

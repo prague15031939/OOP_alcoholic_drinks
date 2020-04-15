@@ -7,22 +7,22 @@ using PluginInterface;
 
 namespace AlcoholicDrinks
 {
-    public delegate void PluginMethod(IPlugin plugin);
+    public delegate void PluginReturnMethod(IPlugin plugin);
 
     public partial class frmPlugins : Form
     {
-        private int picked_plugin = -1;
-        private List<IPlugin> plugin_list = new List<IPlugin>();
-        private PluginMethod ReturnPlugin;
+        private int PickedPlugin = -1;
+        private List<IPlugin> PluginList = new List<IPlugin>();
+        private PluginReturnMethod ReturnPlugin;
 
-        public frmPlugins(PluginMethod RetPlugin)
+        public frmPlugins(PluginReturnMethod RetPlugin)
         {
             InitializeComponent();
 
             ReturnPlugin = RetPlugin;
-            var load_obj = new PluginLoader();
-            plugin_list = load_obj.RefreshPlugins();
-            plugin_list.Add(null);
+            var loadObj = new PluginLoader();
+            PluginList = loadObj.RefreshPlugins();
+            PluginList.Add(null);
             GenerateComponents();
         }
 
@@ -60,23 +60,23 @@ namespace AlcoholicDrinks
 
         private void GenerateComponents()
         {
-            int start_y = 10, count_y = 0;
-            foreach (IPlugin plugin in plugin_list)
+            int startY = 10, countY = 0;
+            foreach (IPlugin plugin in PluginList)
             {
-                CreateRadioButton(45, start_y + count_y * 30, GetPluginCaption(plugin), count_y);
-                count_y++;
+                CreateRadioButton(45, startY + countY * 30, GetPluginCaption(plugin), countY);
+                countY++;
             }
-            CreateButton(45, start_y + count_y++ * 30 + 10);
-            Height = start_y + count_y * 30 + 55;
+            CreateButton(45, startY + countY++ * 30 + 10);
+            Height = startY + countY * 30 + 55;
             Width = 180;
         }
 
         private void ButtonOnClick(object sender, EventArgs e)
         {
             var btn = (Button)sender;
-            if (btn != null && picked_plugin != -1)
+            if (btn != null && PickedPlugin != -1)
             {
-                ReturnPlugin(plugin_list[picked_plugin]);
+                ReturnPlugin(PluginList[PickedPlugin]);
                 Close();
             }
         }
@@ -85,7 +85,7 @@ namespace AlcoholicDrinks
         {
             var rbtn = (RadioButton)sender;
             if (rbtn.Checked) 
-                picked_plugin = (int)rbtn.Tag;
+                PickedPlugin = (int)rbtn.Tag;
         }
     }
 }

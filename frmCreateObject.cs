@@ -8,32 +8,32 @@ using Alcohol;
 
 namespace AlcoholicDrinks
 {
-    public delegate void ReturnMethod(object obj);
+    public delegate void ObjectReturnMethod(object obj);
 
     public partial class frmCreateObject : Form
     {
-        private List<Control> control_list = new List<Control>();
-        private Type current_class_type;
-        private Dictionary<FieldInfo, object> association_dict = new Dictionary<FieldInfo, object>();
-        private object target_object;
-        private FieldInfo target_field;
-        private ReturnMethod ReturnObject;
-        private int start_y = 25, count_y = 0, start_x = 25, count_x = 0;
+        private List<Control> ControlList = new List<Control>();
+        private Type CurrentClassType;
+        private Dictionary<FieldInfo, object> AssociationDict = new Dictionary<FieldInfo, object>();
+        private object TargetObject;
+        private FieldInfo TargetField;
+        private ObjectReturnMethod ReturnObject;
+        private int startY = 25, countY = 0, startX = 25, countX = 0;
 
-        public frmCreateObject(string class_str, object target_obj, ReturnMethod ReturnObj)
+        public frmCreateObject(string ClassStr, object TargetObj, ObjectReturnMethod ReturnObj)
         {
             InitializeComponent();
 
-            current_class_type = Type.GetType(class_str, false, true);
-            target_object = target_obj;
+            CurrentClassType = Type.GetType(ClassStr, false, true);
+            TargetObject = TargetObj;
             ReturnObject = ReturnObj;
-            GenerateComponents(current_class_type.GetFields());
+            GenerateComponents(CurrentClassType.GetFields());
         }
 
         private void CreateButton(string caption, string name, object tag = null)
         {
             var btn = new Button();
-            btn.Location = new Point(start_x + 215 * count_x, start_y + 50 * count_y);
+            btn.Location = new Point(startX + 215 * countX, startY + 50 * countY);
             btn.Name = name;
             btn.Text = caption;
             btn.Tag = tag;
@@ -45,8 +45,8 @@ namespace AlcoholicDrinks
         private void CreateLabel(FieldInfo field)
         {
             var label = new Label();
-            label.Location = new Point(start_x + 215 * count_x, start_y + 50 * count_y - 15);
-            label.Name = "lbl" + count_x + count_y;
+            label.Location = new Point(startX + 215 * countX, startY + 50 * countY - 15);
+            label.Name = "lbl" + countX + countY;
             label.Text = field.Name;
             if (Attribute.IsDefined(field, typeof(NameAttribute)))
                 label.Text = (Attribute.GetCustomAttribute(field, typeof(NameAttribute)) as NameAttribute).Name;
@@ -56,76 +56,76 @@ namespace AlcoholicDrinks
             Controls.Add(label);
         }
 
-        private void ConfigControl(Control control_obj, FieldInfo field)
+        private void ConfigControl(Control ControlObj, FieldInfo field)
         {
-            control_obj.Location = new Point(start_x + 215 * count_x, start_y + 50 * count_y);
-            control_obj.Name = field.Name;
-            control_obj.Size = new Size(140, 25);
-            Controls.Add(control_obj);
-            control_list.Add(control_obj);
+            ControlObj.Location = new Point(startX + 215 * countX, startY + 50 * countY);
+            ControlObj.Name = field.Name;
+            ControlObj.Size = new Size(140, 25);
+            Controls.Add(ControlObj);
+            ControlList.Add(ControlObj);
         }
 
         private Control GetControl(FieldInfo field)
         {
-            Control control_obj;
+            Control ControlObj;
             if (field.FieldType.Name == "Boolean")
-                control_obj = new CheckBox();
+                ControlObj = new CheckBox();
             else if (field.FieldType.IsEnum)
             {
-                control_obj = new ComboBox();
+                ControlObj = new ComboBox();
                 foreach (string item in Enum.GetNames(field.FieldType))
-                    (control_obj as ComboBox).Items.Add(item);
-                (control_obj as ComboBox).DropDownStyle = ComboBoxStyle.DropDownList;
+                    (ControlObj as ComboBox).Items.Add(item);
+                (ControlObj as ComboBox).DropDownStyle = ComboBoxStyle.DropDownList;
             }
             else
-                control_obj = new TextBox();
-            return control_obj;
+                ControlObj = new TextBox();
+            return ControlObj;
         }
 
-        private void GenerateComponents(FieldInfo[] field_list)  
+        private void GenerateComponents(FieldInfo[] FieldList)  
         {
-            foreach (FieldInfo field in field_list)
+            foreach (FieldInfo field in FieldList)
             {
-                if (start_y + 50 * count_y + 30 >= ClientSize.Height)
+                if (startY + 50 * countY + 30 >= ClientSize.Height)
                 {
-                    count_y = 0;
-                    count_x++;
+                    countY = 0;
+                    countX++;
                 }
 
                 if (field.FieldType.Namespace == "Alcohol" && !field.FieldType.IsEnum)
                     CreateButton(field.Name + " ->", "btn_" + field.Name, field);
                 else
                 {
-                    Control control_obj = GetControl(field);
-                    if (target_object != null)
-                        SetControlData(control_obj, field, target_object);
-                    ConfigControl(control_obj, field);
+                    Control ControlObj = GetControl(field);
+                    if (TargetObject != null)
+                        SetControlData(ControlObj, field, TargetObject);
+                    ConfigControl(ControlObj, field);
                     CreateLabel(field);
                 }
 
-                count_y++;
+                countY++;
             }
 
-            CreateButton(target_object != null ? "edit" : "create", target_object != null ? "btn_edit" : "btn_create");
-            Text = target_object != null ? "edit" : "create";
+            CreateButton(TargetObject != null ? "edit" : "create", TargetObject != null ? "btn_edit" : "btn_create");
+            Text = TargetObject != null ? "edit" : "create";
         }
 
-        private void SetControlData(Control control_obj, FieldInfo field, object target_object)
+        private void SetControlData(Control ControlObj, FieldInfo field, object TargetObject)
         {
             if (field.FieldType.Name == "String" || field.FieldType.Name == "Double" || field.FieldType.Name == "Int32")
-                control_obj.Text = field.GetValue(target_object).ToString();
+                ControlObj.Text = field.GetValue(TargetObject).ToString();
             else if (field.FieldType.Name == "Boolean")
-                (control_obj as CheckBox).Checked = (bool)field.GetValue(target_object);
+                (ControlObj as CheckBox).Checked = (bool)field.GetValue(TargetObject);
             else if (field.FieldType.IsEnum)
-                (control_obj as ComboBox).Text = field.GetValue(target_object).ToString();
+                (ControlObj as ComboBox).Text = field.GetValue(TargetObject).ToString();
         }
 
         private void GetControlData(Control obj, FieldInfo field, object entity)
         {
             if (field.FieldType.Name == "String")
             {
-                char[] bad_symbols = { '{', '}', ';', ':', '?', };
-                if (obj.Text.IndexOfAny(bad_symbols) != -1)
+                char[] BadSymbols = { '{', '}', ';', ':', '?', };
+                if (obj.Text.IndexOfAny(BadSymbols) != -1)
                     throw new FormatException();
                 field.SetValue(entity, obj.Text);
             }
@@ -139,21 +139,21 @@ namespace AlcoholicDrinks
                 field.SetValue(entity, Enum.Parse(field.FieldType, obj.Text));
         }
 
-        private object FillObjectFields(Type class_type)
+        private object FillObjectFields(Type ClassType)
         {
-            var entity = Activator.CreateInstance(class_type);
-            FieldInfo[] field_list = class_type.GetFields();
+            var entity = Activator.CreateInstance(ClassType);
+            FieldInfo[] FieldList = ClassType.GetFields();
 
-            foreach (FieldInfo field in field_list)
+            foreach (FieldInfo field in FieldList)
             {
                 if (field.FieldType.Namespace == "Alcohol" && !field.FieldType.IsEnum)
                 {
-                    if (association_dict.ContainsKey(field))
-                        field.SetValue(entity, association_dict[field]);
+                    if (AssociationDict.ContainsKey(field))
+                        field.SetValue(entity, AssociationDict[field]);
                     continue;
                 }
 
-                foreach (Control obj in control_list)
+                foreach (Control obj in ControlList)
                 {
                     if (obj.Name == field.Name)
                     {
@@ -175,10 +175,10 @@ namespace AlcoholicDrinks
 
         private void AddAssociation(object obj)
         {
-            if (!association_dict.ContainsKey(target_field))
-                association_dict.Add(target_field, obj);
+            if (!AssociationDict.ContainsKey(TargetField))
+                AssociationDict.Add(TargetField, obj);
             else
-                association_dict[target_field] = obj;
+                AssociationDict[TargetField] = obj;
         }
 
         private void ButtonOnClick(object sender, EventArgs e)
@@ -186,7 +186,7 @@ namespace AlcoholicDrinks
             var btn = (Button)sender;
             if (btn != null && (btn.Name == "btn_create" || btn.Name == "btn_edit"))
             {
-                object obj = FillObjectFields(current_class_type);
+                object obj = FillObjectFields(CurrentClassType);
                 if (obj != null)
                 {
                     ReturnObject(obj);
@@ -195,10 +195,10 @@ namespace AlcoholicDrinks
             }
             else if (btn != null)
             {
-                target_field = btn.Tag as FieldInfo;
-                object temp = target_object == null ? null : target_field.GetValue(target_object);
-                if (association_dict.ContainsKey(target_field))
-                    temp = association_dict[target_field];
+                TargetField = btn.Tag as FieldInfo;
+                object temp = TargetObject == null ? null : TargetField.GetValue(TargetObject);
+                if (AssociationDict.ContainsKey(TargetField))
+                    temp = AssociationDict[TargetField];
                 var frm = new frmCreateObject((btn.Tag as FieldInfo).FieldType.ToString(), temp, AddAssociation);
                 frm.ShowDialog();
             }

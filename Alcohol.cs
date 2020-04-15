@@ -32,7 +32,7 @@ namespace Alcohol
     public enum StrongAddition
     {
         wheat = 1,
-        birch_buds = 2,
+        birchBuds = 2,
         gold = 3,
         silver = 4,
     }
@@ -43,7 +43,7 @@ namespace Alcohol
         public string title;
         public string manufacturer;
         public double degree;
-        [Name(Name = "container volume")] public double container_volume;
+        [Name(Name = "container volume")] public double ContainerVolume;
     }
 
     [Serializable]
@@ -60,28 +60,28 @@ namespace Alcohol
     [Serializable]
     public class CraftBeer : Beer
     {
-        [Name(Name = "addition type")] public string addition_type;
-        [Name(Name = "hop type")] public HopType hop_type;
-        [Name(Name = "extra flavour")] public ExtraFlavour extra_flavour;
+        [Name(Name = "addition type")] public string AdditionType;
+        [Name(Name = "hop type")] public HopType HopType;
+        [Name(Name = "extra flavour")] public ExtraFlavour ExtraFlavour;
     }
 
     [Serializable]
     public class Wine : AlcoholDrink
     {
-        [Name(Name = "sugar type")] public string sugar_type;
+        [Name(Name = "sugar type")] public string SugarType;
         public string color;
         public WineOrigin origin;
         public string aroma;
-        [Name(Name = "harmonious dish")] public string harmonious_dish;
+        [Name(Name = "harmonious dish")] public string HarmoniousDish;
     }
 
     [Serializable]
     public class StrongDrink : AlcoholDrink
     {
-        [Name(Name = "main component")] public string main_component;
+        [Name(Name = "main component")] public string MainComponent;
         public StrongAddition addition;
-        [Name(Name = "distillation count")] public int distillation_count;
-        [Name(Name = "alcohol type")] public string alcohol_type;
+        [Name(Name = "distillation count")] public int DistillationCount;
+        [Name(Name = "alcohol type")] public string AlcoholType;
     }
 
     [Serializable]
@@ -95,8 +95,8 @@ namespace Alcohol
     [Serializable]
     public class BeerContainer
     {
-        [Name(Name = "container material")] public string container_material;
-        [Name(Name = "decor quality")] public int decor_quality;
-        [Name(Name = "open mechanism")] public bool open_mechanism;
+        [Name(Name = "container material")] public string ContainerMaterial;
+        [Name(Name = "decor quality")] public int DecorQuality;
+        [Name(Name = "open mechanism")] public bool OpenMechanism;
     }
 }

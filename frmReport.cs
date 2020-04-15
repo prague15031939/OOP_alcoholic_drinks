@@ -8,11 +8,11 @@ namespace AlcoholicDrinks
 {
     public partial class frmReport : Form
     {
-        public frmReport(object source_object)
+        public frmReport(object SourceObject)
         {
             InitializeComponent();
 
-            ViewObject(source_object);
+            ViewObject(SourceObject);
         }
 
         private void ViewObject(object obj, int indent = 0)
@@ -20,20 +20,20 @@ namespace AlcoholicDrinks
             if (obj == null)
                 return;
 
-            Type class_type = obj.GetType();
+            Type ClassType = obj.GetType();
             if (indent == 0)
-                txtReport.AppendText($"class: {class_type}\n\n");
+                txtReport.AppendText($"class: {ClassType}\n\n");
 
-            foreach (FieldInfo field in class_type.GetFields())
+            foreach (FieldInfo field in ClassType.GetFields())
             {
-                string str_item = "";
+                string ItemStr = "";
                 for (int i = 0; i < indent; i++)
-                    str_item += " ";
+                    ItemStr += " ";
 
                 if (Attribute.IsDefined(field, typeof(NameAttribute)))
-                    str_item += (Attribute.GetCustomAttribute(field, typeof(NameAttribute)) as NameAttribute).Name;
+                    ItemStr += (Attribute.GetCustomAttribute(field, typeof(NameAttribute)) as NameAttribute).Name;
                 else
-                    str_item += field.Name;
+                    ItemStr += field.Name;
 
                 object value;
                 if (field.GetValue(obj) == null)
@@ -44,8 +44,8 @@ namespace AlcoholicDrinks
                     value = field.GetValue(obj);
                 else
                     value = "...";
-                str_item += $" -> {value.ToString()}";
-                txtReport.AppendText($"{str_item}\n");
+                ItemStr += $" -> {value.ToString()}";
+                txtReport.AppendText($"{ItemStr}\n");
 
                 if (field.FieldType.Namespace == "Alcohol" && !field.FieldType.IsEnum)
                     ViewObject(field.GetValue(obj), 4);

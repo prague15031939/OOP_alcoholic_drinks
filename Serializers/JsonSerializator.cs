@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using Newtonsoft.Json;
 
 using AlcoholicDrinks;
@@ -10,7 +9,7 @@ namespace Serializers
 {
     class JsonSerializator : Serializator
     {
-        private JsonSerializerSettings json_settings = new JsonSerializerSettings
+        private JsonSerializerSettings JsonSettings = new JsonSerializerSettings
         {
             TypeNameHandling = TypeNameHandling.All,
             NullValueHandling = NullValueHandling.Include,
@@ -22,34 +21,34 @@ namespace Serializers
             FilePath = fPath;
         }
 
-        public override void Serialize(List<object> object_list, IPlugin plugin)
+        public override void Serialize(List<object> ObjectList, IPlugin plugin)
         {
-            string json_string = JsonConvert.SerializeObject(object_list, json_settings);
+            string JsonString = JsonConvert.SerializeObject(ObjectList, JsonSettings);
             if (plugin == null)
             {
                 using (StreamWriter fStream = new StreamWriter(FilePath))
                 {
-                    fStream.Write(json_string);
+                    fStream.Write(JsonString);
                 }
             }
             else
-                plugin.PostProcessString(json_string, FilePath);
+                plugin.PostProcessString(JsonString, FilePath);
         }
 
         public override List<object> Deserealize(IPlugin plugin)
         {
-            string json_string;
+            string JsonString;
             if (plugin == null)
             {
                 using (StreamReader fStream = new StreamReader(FilePath))
                 {
-                    json_string = fStream.ReadToEnd();
+                    JsonString = fStream.ReadToEnd();
                 }
             }
             else
-                json_string = plugin.PreProcessString(FilePath);
-            var object_list = JsonConvert.DeserializeObject<List<object>>(json_string, json_settings);
-            return object_list;
+                JsonString = plugin.PreProcessString(FilePath);
+            var ObjectList = JsonConvert.DeserializeObject<List<object>>(JsonString, JsonSettings);
+            return ObjectList;
         }
     }
 }

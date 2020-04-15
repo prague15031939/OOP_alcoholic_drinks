@@ -8,7 +8,7 @@ namespace AlcoholicDrinks
     abstract class Serializator
     {
         protected string FilePath;
-        public abstract void Serialize(List<object> object_list, IPlugin plugin);
+        public abstract void Serialize(List<object> ObjectList, IPlugin plugin);
         public abstract List<object> Deserealize(IPlugin plugin);
     }
 

@@ -7,8 +7,8 @@
     <ProjectGuid>{82BC6B64-EB2B-459C-8D2E-71511BAF39E4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>LZWCompressor</RootNamespace>
-    <AssemblyName>LZWCompressor</AssemblyName>
+    <RootNamespace>GZipCompressor</RootNamespace>
+    <AssemblyName>GZipCompressor</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -46,7 +46,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="LZWCompressor.cs" />
+    <Compile Include="GZipCompressor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

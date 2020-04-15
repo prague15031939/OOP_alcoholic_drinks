@@ -11,26 +11,26 @@ namespace AlcoholicDrinks
     {
         public List<IPlugin> RefreshPlugins()
         {
-            var plugin_list = new List<IPlugin>();
+            var PluginList = new List<IPlugin>();
 
-            string plugin_path = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
-            DirectoryInfo plugin_directory = new DirectoryInfo(plugin_path);
-            if (!plugin_directory.Exists)
-                plugin_directory.Create();
+            string PluginPath = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
+            DirectoryInfo PluginDirectory = new DirectoryInfo(PluginPath);
+            if (!PluginDirectory.Exists)
+                PluginDirectory.Create();
 
-            string[] plugin_files = Directory.GetFiles(plugin_path, "*.dll");
-            foreach (string file in plugin_files)
+            string[] PluginFiles = Directory.GetFiles(PluginPath, "*.dll");
+            foreach (string file in PluginFiles)
             {
                 Assembly asm = Assembly.LoadFrom(file);
                 Type[] types = asm.GetTypes();
                 foreach (Type type in types)
                 {
                     IPlugin plugin = asm.CreateInstance(type.FullName) as IPlugin;
-                    plugin_list.Add(plugin);
+                    PluginList.Add(plugin);
                 }
             }
 
-            return plugin_list;
+            return PluginList;
         }
     }
 }
