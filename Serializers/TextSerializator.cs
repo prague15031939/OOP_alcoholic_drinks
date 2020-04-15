@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 
 using AlcoholicDrinks;
+using PluginInterface;
 
 namespace Serializers
 {
@@ -128,29 +129,46 @@ namespace Serializers
             return obj;
         }
 
-        public override void Serialize(List<object> object_list)
+        public override void Serialize(List<object> object_list, IPlugin plugin)
         {
-            using (StreamWriter fStream = new StreamWriter(FilePath))
+            string text_string = "";
+            foreach (object obj in object_list)
+                text_string += $"{ObjectToStr(obj)}\n";
+            if (plugin == null)
             {
-                fStream.WriteLine(object_list.Count.ToString());
-                foreach (object obj in object_list)
-                    fStream.WriteLine(ObjectToStr(obj));
+                using (StreamWriter fStream = new StreamWriter(FilePath))
+                {
+                    fStream.Write(text_string);
+                }
             }
+            else
+                plugin.PostProcessString(text_string, FilePath);
         }
 
-        public override List<object> Deserealize()
+        public override List<object> Deserealize(IPlugin plugin)
         {
-            using (StreamReader fStream = new StreamReader(FilePath))
+            string text_string;
+            if (plugin == null)
             {
-                var object_list = new List<object>();
-                int object_amount = Convert.ToInt32(fStream.ReadLine());
-                for (int i = 0; i < object_amount; i++)
+                using (StreamReader fStream = new StreamReader(FilePath))
                 {
-                    object obj = StrToObject(fStream.ReadLine());
+                    text_string = fStream.ReadToEnd();    
+                }
+            }
+            else
+                text_string = plugin.PreProcessString(FilePath);
+
+            var object_list = new List<object>();
+            string[] line_list = text_string.Split('\n');
+            foreach (string line in line_list)
+            {
+                if (line != "")
+                {
+                    object obj = StrToObject(line);
                     object_list.Add(obj);
                 }
-                return object_list;
             }
+            return object_list;
         }
     }
 }

@@ -7,7 +7,9 @@ using System.Reflection;
 using Alcohol;
 
 namespace AlcoholicDrinks
-{ 
+{
+    public delegate void ReturnMethod(object obj);
+
     public partial class frmCreateObject : Form
     {
         private List<Control> control_list = new List<Control>();

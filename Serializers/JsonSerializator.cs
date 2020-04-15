@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using Newtonsoft.Json;
 
 using AlcoholicDrinks;
+using PluginInterface;
 
 namespace Serializers
 {
@@ -20,23 +22,34 @@ namespace Serializers
             FilePath = fPath;
         }
 
-        public override void Serialize(List<object> object_list)
+        public override void Serialize(List<object> object_list, IPlugin plugin)
         {
-            using (StreamWriter fStream = new StreamWriter(FilePath))
+            string json_string = JsonConvert.SerializeObject(object_list, json_settings);
+            if (plugin == null)
             {
-                string json_string = JsonConvert.SerializeObject(object_list, json_settings);
-                fStream.Write(json_string);
+                using (StreamWriter fStream = new StreamWriter(FilePath))
+                {
+                    fStream.Write(json_string);
+                }
             }
+            else
+                plugin.PostProcessString(json_string, FilePath);
         }
 
-        public override List<object> Deserealize()
+        public override List<object> Deserealize(IPlugin plugin)
         {
-            using (StreamReader fStream = new StreamReader(FilePath))
+            string json_string;
+            if (plugin == null)
             {
-                string json_string = fStream.ReadToEnd();
-                var object_list = JsonConvert.DeserializeObject<List<object>>(json_string, json_settings);
-                return object_list;
+                using (StreamReader fStream = new StreamReader(FilePath))
+                {
+                    json_string = fStream.ReadToEnd();
+                }
             }
+            else
+                json_string = plugin.PreProcessString(FilePath);
+            var object_list = JsonConvert.DeserializeObject<List<object>>(json_string, json_settings);
+            return object_list;
         }
     }
 }

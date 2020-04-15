@@ -2,8 +2,6 @@
 
 namespace Alcohol
 {
-    public delegate void ReturnMethod(object obj);
-
     public class NameAttribute : Attribute
     {
         public string Name;

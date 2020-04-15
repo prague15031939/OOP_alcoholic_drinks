@@ -3,20 +3,15 @@ using System.IO;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
+using PluginInterface;
+
 namespace AlcoholicDrinks
 {
     public partial class frmMain : Form
     {
-        private string plugin_path = Path.Combine(Directory.GetCurrentDirectory(), "Plugins");
-        private List<IPlugin> plugin_list = new List<IPlugin>();
         private List<Creator> creator_list = new List<Creator> { new TextCreator(), new BinaryCreator(), new JsonCreator() };
         private List<object> object_list = new List<object>();
         private int target_list_index;
-
-        private void RefreshPlugins()
-        {
-            //
-        }
 
         public void AddAlcoholObject(object obj)
         {
@@ -48,12 +43,6 @@ namespace AlcoholicDrinks
         public frmMain()
         {
             InitializeComponent();
-
-            openDialog.Filter = "Text files (*.txt)|*.txt|Binary files (*.bin)|*.bin|Json files (*.json)|*.json";
-            saveDialog.Filter = "Text files (*.txt)|*.txt|Binary files (*.bin)|*.bin|Json files (*.json)|*.json";
-            saveDialog.AddExtension = true;
-
-            RefreshPlugins();
         }
 
         private void DeleteObject()
@@ -125,29 +114,82 @@ namespace AlcoholicDrinks
                 DeleteObject();
         }
 
+        private void RefreshFileOpenInfo(List<IPlugin> plugin_list)
+        {
+            openDialog.Filter = "Text files (*.txt)|*.txt|Binary files (*.bin)|*.bin|Json files (*.json)|*.json";
+            foreach (IPlugin plugin in plugin_list)
+            {
+                if (Attribute.IsDefined(plugin.GetType(), typeof(NameAttribute)))
+                {
+                    string PluginExtension = (Attribute.GetCustomAttribute(plugin.GetType(), typeof(NameAttribute)) as NameAttribute).PluginExtension;
+                    string PluginName = (Attribute.GetCustomAttribute(plugin.GetType(), typeof(NameAttribute)) as NameAttribute).PluginName;
+                    openDialog.Filter += $"|Compressed {PluginName} files (*.txt{PluginExtension})|*.txt{PluginExtension}";
+                    openDialog.Filter += $"|Compressed {PluginName} files (*.bin{PluginExtension})|*.bin{PluginExtension}";
+                    openDialog.Filter += $"|Compressed {PluginName} files (*.json{PluginExtension})|*.json{PluginExtension}";
+                }
+            }
+        }
+
+        private void RefreshFileSaveInfo(IPlugin plugin)
+        {
+            saveDialog.Filter = "Text files (*.txt)|*.txt|Binary files (*.bin)|*.bin|Json files (*.json)|*.json";
+            saveDialog.AddExtension = true;
+            if (plugin != null && Attribute.IsDefined(plugin.GetType(), typeof(NameAttribute)))
+            {
+                string PluginExtension = (Attribute.GetCustomAttribute(plugin.GetType(), typeof(NameAttribute)) as NameAttribute).PluginExtension;
+                string PluginName = (Attribute.GetCustomAttribute(plugin.GetType(), typeof(NameAttribute)) as NameAttribute).PluginName;
+                saveDialog.Filter = $"Compressed {PluginName} files (*.txt{PluginExtension})|*.txt{PluginExtension}";
+                saveDialog.Filter += $"|Compressed {PluginName} files (*.bin{PluginExtension})|*.bin{PluginExtension}";
+                saveDialog.Filter += $"|Compressed {PluginName} files (*.json{PluginExtension})|*.json{PluginExtension}";
+            }
+        }
+
+        private IPlugin GetOpenPlugin(List<IPlugin> plugin_list, string file_name)
+        {
+            foreach (IPlugin plugin in plugin_list)
+            {
+                if (Attribute.IsDefined(plugin.GetType(), typeof(NameAttribute)))
+                {
+                    string PluginExtension = (Attribute.GetCustomAttribute(plugin.GetType(), typeof(NameAttribute)) as NameAttribute).PluginExtension;
+                    var file_info = new FileInfo(file_name);
+                    if (file_info.Extension.Contains(PluginExtension))
+                        return plugin;
+                }
+            }
+            return null;
+        }
+
         private void OpenFile()
         {
+            var load_obj = new PluginLoader();
+            List<IPlugin> plugin_list = load_obj.RefreshPlugins();
+            RefreshFileOpenInfo(plugin_list);
+
             if (openDialog.ShowDialog() == DialogResult.Cancel)
                 return;
 
             string file_name = openDialog.FileName;
-            int creator_index = openDialog.FilterIndex - 1;
+            int creator_index = (openDialog.FilterIndex - 1) % creator_list.Count;
             var serializator = creator_list[creator_index].Create(file_name);
-            object_list = serializator.Deserealize();
+
+            IPlugin plugin = GetOpenPlugin(plugin_list, file_name);
+            object_list = serializator.Deserealize(plugin);
+
             lvMain.Items.Clear();
             foreach (object entity in object_list)
                 lvMain_AddObject(entity);
         }
 
-        private void SaveFile()
+        private void SaveFile(IPlugin plugin)
         {
+            RefreshFileSaveInfo(plugin);
             if (saveDialog.ShowDialog() == DialogResult.Cancel)
                 return;
 
             string file_name = saveDialog.FileName;
             int creator_index = saveDialog.FilterIndex - 1;
             var serializator = creator_list[creator_index].Create(file_name);
-            serializator.Serialize(object_list);
+            serializator.Serialize(object_list, plugin);
         }
 
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
@@ -157,7 +199,8 @@ namespace AlcoholicDrinks
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            SaveFile();
+            var frm = new frmPlugins(SaveFile);
+            frm.ShowDialog();
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)

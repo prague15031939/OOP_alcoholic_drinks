@@ -1,14 +1,15 @@
 ﻿using System.Collections.Generic;
 
 using Serializers;
+using PluginInterface;
 
 namespace AlcoholicDrinks
 {
     abstract class Serializator
     {
         protected string FilePath;
-        public abstract void Serialize(List<object> object_list);
-        public abstract List<object> Deserealize();
+        public abstract void Serialize(List<object> object_list, IPlugin plugin);
+        public abstract List<object> Deserealize(IPlugin plugin);
     }
 
     abstract class Creator
