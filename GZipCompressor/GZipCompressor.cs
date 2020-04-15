@@ -11,22 +11,42 @@ namespace Plugins
     {
         public void PostProcessString(string InputString, string FilePath)
         {
-
-        }
-
-        public void PostProcessStream(MemoryStream InputStream, string FilePath)
-        {
-
+            byte[] ByteInput = Encoding.Unicode.GetBytes(InputString);
+            var MemStream = new MemoryStream();
+            MemStream.Write(ByteInput, 0, ByteInput.Length);
+            PostProcessStream(MemStream, FilePath);
         }
 
         public string PreProcessString(string FilePath)
         {
-            return null;
+            MemoryStream MemStream = PreProcessStream(FilePath);
+            byte[] ByteOutput = MemStream.ToArray();
+            return Encoding.Unicode.GetString(ByteOutput);
+        }
+
+        public void PostProcessStream(MemoryStream InputStream, string FilePath)
+        {
+            using (var OutputStream = new FileStream(FilePath, FileMode.Create))
+            {
+                using (var CompressionStream = new GZipStream(OutputStream, CompressionMode.Compress))
+                {
+                    InputStream.Position = 0;
+                    InputStream.CopyTo(CompressionStream);
+                }
+            }
         }
 
         public MemoryStream PreProcessStream(string FilePath)
         {
-            return null;
+            var OutputStream = new MemoryStream();
+            using (var InputStream = new FileStream(FilePath, FileMode.Open))
+            {
+                using (var CompressionStream = new GZipStream(InputStream, CompressionMode.Decompress))
+                {
+                    CompressionStream.CopyTo(OutputStream);
+                    return OutputStream;
+                }
+            }
         }
     }
 }

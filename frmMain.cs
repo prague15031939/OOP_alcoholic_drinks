@@ -36,7 +36,7 @@ namespace AlcoholicDrinks
             item.Text = (string)ClassType.GetField("title").GetValue(obj);
             item.SubItems.Add((string)ClassType.GetField("manufacturer").GetValue(obj));
             item.SubItems.Add(((double)ClassType.GetField("degree").GetValue(obj)).ToString());
-            item.SubItems.Add(((double)ClassType.GetField("container_volume").GetValue(obj)).ToString());
+            item.SubItems.Add(((double)ClassType.GetField("ContainerVolume").GetValue(obj)).ToString());
             lvMain.Items.Add(item);
         }
 
@@ -114,34 +114,38 @@ namespace AlcoholicDrinks
                 DeleteObject();
         }
 
+        private void ModifyDialogFilter(IPlugin plugin, ref string filter)
+        {
+            if (Attribute.IsDefined(plugin.GetType(), typeof(NameAttribute)))
+            {
+                string PluginExtension = (Attribute.GetCustomAttribute(plugin.GetType(), typeof(NameAttribute)) as NameAttribute).PluginExtension;
+                string PluginName = (Attribute.GetCustomAttribute(plugin.GetType(), typeof(NameAttribute)) as NameAttribute).PluginName;
+                filter += $"Compressed {PluginName} files (*.txt{PluginExtension})|*.txt{PluginExtension}";
+                filter += $"|Compressed {PluginName} files (*.bin{PluginExtension})|*.bin{PluginExtension}";
+                filter += $"|Compressed {PluginName} files (*.json{PluginExtension})|*.json{PluginExtension}";
+            }
+        }
+
         private void RefreshFileOpenInfo(List<IPlugin> PluginList)
         {
-            openDialog.Filter = "Text files (*.txt)|*.txt|Binary files (*.bin)|*.bin|Json files (*.json)|*.json";
+            string filter = "Text files (*.txt)|*.txt|Binary files (*.bin)|*.bin|Json files (*.json)|*.json";
             foreach (IPlugin plugin in PluginList)
             {
-                if (Attribute.IsDefined(plugin.GetType(), typeof(NameAttribute)))
-                {
-                    string PluginExtension = (Attribute.GetCustomAttribute(plugin.GetType(), typeof(NameAttribute)) as NameAttribute).PluginExtension;
-                    string PluginName = (Attribute.GetCustomAttribute(plugin.GetType(), typeof(NameAttribute)) as NameAttribute).PluginName;
-                    openDialog.Filter += $"|Compressed {PluginName} files (*.txt{PluginExtension})|*.txt{PluginExtension}";
-                    openDialog.Filter += $"|Compressed {PluginName} files (*.bin{PluginExtension})|*.bin{PluginExtension}";
-                    openDialog.Filter += $"|Compressed {PluginName} files (*.json{PluginExtension})|*.json{PluginExtension}";
-                }
+                filter += "|";
+                ModifyDialogFilter(plugin, ref filter);
             }
+            openDialog.Filter = filter;
         }
 
         private void RefreshFileSaveInfo(IPlugin plugin)
         {
-            saveDialog.Filter = "Text files (*.txt)|*.txt|Binary files (*.bin)|*.bin|Json files (*.json)|*.json";
-            saveDialog.AddExtension = true;
-            if (plugin != null && Attribute.IsDefined(plugin.GetType(), typeof(NameAttribute)))
-            {
-                string PluginExtension = (Attribute.GetCustomAttribute(plugin.GetType(), typeof(NameAttribute)) as NameAttribute).PluginExtension;
-                string PluginName = (Attribute.GetCustomAttribute(plugin.GetType(), typeof(NameAttribute)) as NameAttribute).PluginName;
-                saveDialog.Filter = $"Compressed {PluginName} files (*.txt{PluginExtension})|*.txt{PluginExtension}";
-                saveDialog.Filter += $"|Compressed {PluginName} files (*.bin{PluginExtension})|*.bin{PluginExtension}";
-                saveDialog.Filter += $"|Compressed {PluginName} files (*.json{PluginExtension})|*.json{PluginExtension}";
+            string filter = "Text files (*.txt)|*.txt|Binary files (*.bin)|*.bin|Json files (*.json)|*.json";
+            if (plugin != null) {
+                filter = "";
+                ModifyDialogFilter(plugin, ref filter);
             }
+            saveDialog.Filter = filter;
+            saveDialog.AddExtension = true;
         }
 
         private IPlugin GetOpenPlugin(List<IPlugin> PluginList, string FileName)
